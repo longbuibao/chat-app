@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('sendLocation', (position, callback) => {
-        socket.emit('locationMessage',
+        io.to('party').emit('locationMessage',
             generateLocalMessage(`https://google.com/maps?q=${position.long},${position.lat}`)
         )
         callback()
