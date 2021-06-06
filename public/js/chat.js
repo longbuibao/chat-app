@@ -5,12 +5,12 @@ const $messageFormButtton = $messageForm.querySelector('button')
 const $locationButton = document.querySelector('#send-location')
 const $message = document.querySelector('#messages')
 
+
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationTemplate = document.querySelector('#location-template').innerHTML
+const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
-
-
 
 socket.on('message', (message) => {
     const html = Mustache.render(messageTemplate, {
@@ -67,4 +67,12 @@ socket.emit('join', { username, room }, (error) => {
         alert(error)
         location.href = '/'
     }
+})
+
+socket.on('roomData', (roomData) => {
+    const html = Mustache.render(sidebarTemplate, {
+        room: roomData.room,
+        users: roomData.users
+    })
+    document.querySelector('#chat__sidebar').innerHTML = html
 })
