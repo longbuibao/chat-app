@@ -2,7 +2,6 @@ const express = require('express')
 const http = require('http')
 const path = require('path')
 const socketio = require('socket.io')
-const Filter = require('bad-words')
 const { generateMessage, generateLocalMessage } = require('./utils/message')
 
 const app = express()
@@ -13,20 +12,14 @@ const publicPath = path.join(__dirname, '/../public')
 app.use(express.static(publicPath))
 
 io.on('connection', (socket) => {
-    const filter = new Filter()
-
-    socket.emit('message', generateMessage('Welcome'))
-
-    socket.broadcast.emit('message', generateMessage('A user has join!'))
 
     socket.on('sendMessage', (message, callback) => {
-        message = filter.clean(message)
-        io.emit('message', generateMessage(message))
+        io.to('party').emit('message', generateMessage(message))
         callback()
     })
 
     socket.on('disconnect', () => {
-        io.emit('message', generateMessage('A user has left!'))
+        io.to('party').emit('message', generateMessage('A user has left!'))
     })
 
     socket.on('sendLocation', (position, callback) => {
@@ -34,6 +27,12 @@ io.on('connection', (socket) => {
             generateLocalMessage(`https://google.com/maps?q=${position.long},${position.lat}`)
         )
         callback()
+    })
+
+    socket.on('join', ({ username, room }) => {
+        socket.join(room)
+        socket.emit('message', generateMessage('Welcome 👋👋👋'))
+        socket.broadcast.to(room).emit('message', generateMessage(`${username} has join 👦👧👋👋👋!`))
     })
 })
 
