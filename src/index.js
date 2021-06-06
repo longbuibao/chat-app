@@ -3,6 +3,7 @@ const http = require('http')
 const path = require('path')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
+const { generateMessage, generateLocalMessage } = require('./utils/message')
 
 const app = express()
 const server = http.createServer(app)
@@ -13,23 +14,24 @@ app.use(express.static(publicPath))
 
 io.on('connection', (socket) => {
     const filter = new Filter()
-    socket.emit('message', 'Welcome!')
 
-    socket.broadcast.emit('message', 'A user has join!')
+    socket.emit('message', generateMessage('Welcome'))
+
+    socket.broadcast.emit('message', generateMessage('A user has join!'))
 
     socket.on('sendMessage', (message, callback) => {
         message = filter.clean(message)
-        io.emit('message', message)
+        io.emit('message', generateMessage(message))
         callback()
     })
 
     socket.on('disconnect', () => {
-        io.emit('message', 'A user has left!')
+        io.emit('message', generateMessage('A user has left!'))
     })
 
     socket.on('sendLocation', (position, callback) => {
         socket.emit('locationMessage',
-            `https://google.com/maps?q=${position.long},${position.lat}`
+            generateLocalMessage(`https://google.com/maps?q=${position.long},${position.lat}`)
         )
         callback()
     })
