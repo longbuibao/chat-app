@@ -1,24 +1,20 @@
-const generateMessage = (text) => {
+const generateMessage = (text, username) => {
     const date = new Date()
     return {
+        username,
         text,
-        createAt: "Date: " + date.getDate() +
-            "/" + (date.getMonth() + 1) +
-            "/" + date.getFullYear() +
-            " " + date.getHours() +
+        createAt: date.getHours() +
             ":" + date.getMinutes() +
             ":" + date.getSeconds()
     }
 }
 
-const generateLocalMessage = (url) => {
+const generateLocalMessage = (url, username) => {
     const date = new Date()
     return {
+        username,
         url,
-        createAt: "Date: " + date.getDate() +
-            "/" + (date.getMonth() + 1) +
-            "/" + date.getFullYear() +
-            " " + date.getHours() +
+        createAt: date.getHours() +
             ":" + date.getMinutes() +
             ":" + date.getSeconds()
     }

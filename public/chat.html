@@ -30,13 +30,15 @@
     </div>
 
     <script id="message-template" type="text/html">
-        <div>
-            <p>{{createAt}} - {{message}}</p>
+        <div style="margin-top: 10px;">
+            <p>{{createAt}} - [ {{username}} ]🎤 </p>
+            <p> 📢 {{message}}</p>
         </div>
     </script>
     <script id="location-template" type="text/html">
-        <div>
-            <p>{{createAt}} - <a href={{link}} target="_blank">This is my location 🌍🌍🌍🌍🌍</a></p>
+        <div style="margin-top: 10px;">
+            <p>{{createAt}} - [ {{username}} ]🎤</p>
+            <a href={{link}} target="_blank">📢 This is my location 🌍🌍🌍🌍🌍</a>
         </div>
     </script>
 </body>

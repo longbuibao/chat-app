@@ -3,6 +3,13 @@ const http = require('http')
 const path = require('path')
 const socketio = require('socket.io')
 const { generateMessage, generateLocalMessage } = require('./utils/message')
+const {
+    addUser,
+    removeUser,
+    getUser,
+    getUsersInRoom
+} = require('./utils/users')
+
 
 const app = express()
 const server = http.createServer(app)
@@ -14,25 +21,41 @@ app.use(express.static(publicPath))
 io.on('connection', (socket) => {
 
     socket.on('sendMessage', (message, callback) => {
-        io.to('party').emit('message', generateMessage(message))
+        const user = getUser(socket.id)
+        io.to(user.room).emit('message', generateMessage(`${message}`, user.username))
         callback()
     })
 
     socket.on('disconnect', () => {
-        io.to('party').emit('message', generateMessage('A user has left!'))
+        const user = removeUser(socket.id)
+
+        if (user)
+            io.to(user.room).emit('message', generateMessage(`${user.username} has left👐👐`, '🦁Administrator🦊'))
+
     })
 
     socket.on('sendLocation', (position, callback) => {
-        io.to('party').emit('locationMessage',
-            generateLocalMessage(`https://google.com/maps?q=${position.long},${position.lat}`)
+        const user = getUser(socket.id)
+        io.to(user.room).emit('locationMessage',
+            generateLocalMessage(`https://google.com/maps?q=${position.long},${position.lat}`, user.username)
         )
         callback()
     })
 
-    socket.on('join', ({ username, room }) => {
-        socket.join(room)
-        socket.emit('message', generateMessage('Welcome 👋👋👋'))
-        socket.broadcast.to(room).emit('message', generateMessage(`${username} has join 👦👧👋👋👋!`))
+    socket.on('join', ({ username, room }, callback) => {
+
+        const { error, user } = addUser({ id: socket.id, username, room })
+
+        if (error) {
+            return callback(error)
+        }
+
+        socket.join(user.room)
+
+        socket.emit('message', generateMessage(`Welcome ${user.username}👋👋👋`, '🦁Administrator🦊'))
+        socket.broadcast.to(user.room).emit('message', generateMessage(`${username} has join 👦👧👋👋👋!`, '🦁Administrator🦊'))
+
+        callback()
     })
 })
 
